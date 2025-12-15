@@ -1,0 +1,27 @@
+<app-nav></app-nav>
+
+<div class="separator"></div>
+
+<!-- Show loading while checking auth -->
+<div *ngIf="isLoading" class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<!-- Show content after auth check complete -->
+<ng-container *ngIf="!isLoading">
+  <app-home *ngIf="!(accountService.currentUser$ | async)"></app-home>
+  <app-list *ngIf="accountService.currentUser$ | async"></app-list>
+</ng-container>
+
+<!-- Session Expired Modal -->
+<app-session-expired-modal></app-session-expired-modal>
+
+<ng-particles
+class="hei"
+    [id]="id"
+    [options]="particlesOptions"
+    [particlesInit]="particlesInit"
+    (particlesLoaded)="particlesLoaded($event)"
+></ng-particles>

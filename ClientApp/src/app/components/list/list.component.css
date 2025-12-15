@@ -1,0 +1,88 @@
+.spaceHorisontal{
+    display: inline-block;
+    width: 10px;
+}
+.spaceVertical{
+    display: inline-block;
+    height: 10px;
+}
+.descriptionField{
+    margin-top: 10px;
+}
+.descriptionField textarea{
+    border-radius: 20px;
+}
+
+/* Task form container styling */
+.task-form-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.task-form-container .form-label {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.task-form-container input,
+.task-form-container select,
+.task-form-container textarea {
+    border-radius: 8px;
+}
+
+/* Badge and icon spacing */
+.badge {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+}
+
+.badge i {
+    margin-right: 3px;
+}
+
+/* Task list item styling */
+.list-group-item {
+    border-radius: 10px !important;
+}
+
+/* Title text overflow handling */
+.list-group-item .h4 {
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    display: block;
+}
+
+/* Description text overflow handling */
+.list-group-item small {
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    display: block;
+    white-space: pre-wrap;
+}
+
+/* Responsive gap utility */
+.gap-2 {
+    gap: 0.5rem;
+}
+
+/* Prevent content overflow in task columns */
+.list-group-item .col {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.list-group-item .col > div {
+    max-width: 100%;
+}
+
+/* Button sizing improvements */
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}

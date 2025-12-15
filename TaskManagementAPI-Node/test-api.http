@@ -1,0 +1,25 @@
+### Variables
+@baseUrl = http://localhost:5000
+@contentType = application/json
+
+### Register a new user
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+### Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+### Get all tasks (requires token from login)
+GET {{baseUrl}}/api/tasks
+Authorization: Bearer YOUR_TOKEN_HERE

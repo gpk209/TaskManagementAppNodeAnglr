@@ -1,0 +1,196 @@
+<div class=" container rounded-3 border border-2 border-dark my-5 bg-white" style="height:auto;">
+    <div>
+        <h1 class=" h1">Hi, {{username}}! This is your list!</h1>
+        
+        <!-- Task Creation Form -->
+        <div class="task-form-container">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <label class="form-label fw-bold">Title <span class="text-danger">*</span></label>
+                    <input class="form-control shadow" placeholder="Enter task title" type="text" [(ngModel)]="title"
+                        (keyup.enter)="addTask()" required maxlength="150"
+                        [class.is-invalid]="title.trim() === '' && (title.length > 0 || dueDate !== '' || description.trim() !== '')">
+                    <div class="invalid-feedback">Title is required</div>
+                    <small class="text-muted">{{title.length}}/150 characters</small>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-12">
+                    <label class="form-label fw-bold">Description <span class="text-danger">*</span></label>
+                    <textarea class="form-control shadow" placeholder="Enter task description" [(ngModel)]="description" rows="2" required maxlength="1000"
+                        [class.is-invalid]="description.trim() === '' && (description.length > 0 || dueDate !== '' || title.trim() !== '')"></textarea>
+                    <div class="invalid-feedback">Description is required</div>
+                    <small class="text-muted">{{description.length}}/1000 characters</small>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Priority <span class="text-danger">*</span></label>
+                    <select class="form-select shadow" [(ngModel)]="priority" required>
+                        <option *ngFor="let p of priorities" [value]="p">{{p}}</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Status <span class="text-danger">*</span></label>
+                    <select class="form-select shadow" [(ngModel)]="status" required>
+                        <option *ngFor="let s of statuses" [value]="s">{{s}}</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Due Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control shadow" [(ngModel)]="dueDate" required
+                        [class.is-invalid]="dueDate === '' && (title.trim() !== '' || description.trim() !== '')">
+                    <div class="invalid-feedback">Due Date is required</div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-12">
+                    <button class="btn btn-dark btn-lg w-100" (click)="addTask()" [disabled]="!isFormValid()">
+                        <i class="bi bi-plus-circle"></i> Add Task
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sort Options -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" [checked]="isNewStart"
+                    (change)="toggleSortCheck()">
+                    <label class="btn btn-outline-dark" for="btnradio1">Newest First</label>
+                    
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" [checked]="!isNewStart"
+                    (change)="toggleSortCheck()">
+                    <label class="btn btn-outline-dark" for="btnradio2">Oldest First</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Options -->
+        <div class="row mt-3">
+            <div class="col-md-6 mb-2">
+                <label class="form-label fw-bold">Filter by Status:</label>
+                <select class="form-select" [(ngModel)]="filterStatus">
+                    <option value="All">All Statuses</option>
+                    <option *ngFor="let s of statuses" [value]="s">{{s}}</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label fw-bold">Filter by Priority:</label>
+                <select class="form-select" [(ngModel)]="filterPriority">
+                    <option value="All">All Priorities</option>
+                    <option *ngFor="let p of priorities" [value]="p">{{p}}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="row rounded bg-white">
+        <div class=" col-12">
+            <!-- No tasks message -->
+            <div class="text-center py-5" *ngIf="getTasks().length === 0">
+                <i class="bi bi-inbox" style="font-size: 3rem; color: #6c757d;"></i>
+                <h4 class="mt-3 text-muted">No Tasks Available</h4>
+                <p class="text-muted">Start by creating your first task above!</p>
+            </div>
+            
+            <!-- Tasks list -->
+            <ul class=" list-group" id="list" *ngIf="getTasks().length > 0">
+                <li class=" my-3 py-3 shadow list-group-item " *ngFor="let task of getTasks()"  >
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <input type="checkbox" [checked]="task.status === 'Completed'"
+                            (change)="togglecheck(task)">
+                        </div>
+                        <div class="col">
+                            <!-- Title -->
+                            <div class="mb-2">
+                                <label *ngIf="task.isEditMode" class="form-label fw-bold">Title: <span class="text-danger">*</span></label>
+                                <label class="h4" [ngClass]="{'text-decoration-line-through': task.status === 'Completed'}" *ngIf="!task.isEditMode">
+                                    {{task.title}}
+                                </label>
+                                <input class="form-control shadow" *ngIf="task.isEditMode" type="text" [(ngModel)]="task.title"
+                                    (keyup.enter)="editTask(task)" required maxlength="150"
+                                    [class.is-invalid]="task.title.trim() === ''">
+                                <div class="invalid-feedback" *ngIf="task.isEditMode">Title is required</div>
+                                <small class="text-muted" *ngIf="task.isEditMode">{{task.title.length}}/150 characters</small>
+                            </div>
+                            
+                            <!-- Description (always visible) -->
+                            <div class="mb-2" *ngIf="!task.isEditMode && task.description">
+                                <small class="text-muted">{{task.description}}</small>
+                            </div>
+                            
+                            <!-- Task Properties (badges) -->
+                            <div class="d-flex flex-wrap gap-2" *ngIf="!task.isEditMode">
+                                <span class="badge" [ngClass]="{
+                                    'bg-danger': task.priority === 'High',
+                                    'bg-warning text-dark': task.priority === 'Medium',
+                                    'bg-secondary': task.priority === 'Low'
+                                }">
+                                    <i class="bi bi-flag-fill"></i> {{task.priority}}
+                                </span>
+                                
+                                <span class="badge" [ngClass]="{
+                                    'bg-success': task.status === 'Completed',
+                                    'bg-warning text-dark': task.status === 'Pending'
+                                }">
+                                    {{task.status}}
+                                </span>
+                                
+                                <span class="badge bg-dark" *ngIf="task.dueDate">
+                                    <i class="bi bi-calendar-event"></i> {{task.dueDate | date:'MMM dd, yyyy'}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-danger btn-sm me-2" (click)="remove(task)">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                            <button class="btn btn-dark btn-sm" (click)="saveEditToggle(task)"
+                                [disabled]="task.isEditMode && !isTaskValid(task)">
+                                <i class="bi" [ngClass]="task.isEditMode ? 'bi-save' : 'bi-pencil'"></i> 
+                                {{(task.isEditMode ? 'Save':'Edit')}}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Edit Mode - All Fields -->
+                    <div class="row mt-3" *ngIf="task.isEditMode">
+                        <div class="col-12 mb-2">
+                            <label class="form-label fw-bold">Description: <span class="text-danger">*</span></label>
+                            <textarea [(ngModel)]="task.description" class="form-control shadow" rows="2" required maxlength="1000"
+                                [class.is-invalid]="task.description.trim() === ''"></textarea>
+                            <div class="invalid-feedback">Description is required</div>
+                            <small class="text-muted">{{task.description.length}}/1000 characters</small>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label fw-bold">Priority: <span class="text-danger">*</span></label>
+                            <select [(ngModel)]="task.priority" class="form-select shadow" required>
+                                <option *ngFor="let p of priorities" [value]="p">{{p}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label fw-bold">Status: <span class="text-danger">*</span></label>
+                            <select [(ngModel)]="task.status" class="form-select shadow" required>
+                                <option *ngFor="let s of statuses" [value]="s">{{s}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label fw-bold">Due Date: <span class="text-danger">*</span></label>
+                            <input type="date" [value]="getDateString(task.dueDate)" 
+                                   (change)="updateTaskDueDate(task, $any($event.target).value)" 
+                                   class="form-control shadow" required>
+                        </div>
+                    </div>
+                </li> 
+            </ul>
+        </div>
+    </div>
+</div>

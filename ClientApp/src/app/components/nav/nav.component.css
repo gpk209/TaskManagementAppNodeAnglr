@@ -1,0 +1,32 @@
+/* Error alert styling */
+.alert {
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* Dropdown hover effects */
+.user-dropdown {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.user-dropdown:hover {
+    opacity: 0.8;
+}
+
+.logout-item {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.logout-item:hover {
+    background-color: #f8f9fa;
+}

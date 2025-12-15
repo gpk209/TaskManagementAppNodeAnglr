@@ -1,0 +1,992 @@
+{
+	"info": {
+		"_postman_id": "task-management-api-collection",
+		"name": "Task Management API - Node.js",
+		"description": "Complete API collection for Task Management Application built with Node.js, Express, and MongoDB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "lastTaskId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Authentication endpoints for user registration and login",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function() {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});",
+									"",
+									"pm.test('Response has success message', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('successful');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Register a new user account.\n\n**Validation Rules:**\n- Username: Required, 3-50 characters\n- Password: Required, minimum 4 characters"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "register"]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"message\": \"Registration successful. Please login.\"\n}"
+						},
+						{
+							"name": "Username Already Exists",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"existinguser\",\n    \"password\": \"password123\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "register"]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"message\": \"Username 'existinguser' is already taken\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.collectionVariables.set('token', jsonData.token);",
+									"        console.log('Token saved to collection variables');",
+									"    }",
+									"}",
+									"",
+									"pm.test('Status code is 200', function() {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test('Response has token', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('token');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login with existing user credentials.\n\n**Validation Rules:**\n- Username: Required, 3-50 characters\n- Password: Required, minimum 4 characters\n\n**Note:** The token is automatically saved to collection variables for use in subsequent requests."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/login",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "login"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"username\": \"testuser\"\n}"
+						},
+						{
+							"name": "Invalid Credentials",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"wrongpassword\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/login",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "login"]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"error\": \"Invalid credentials\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.collectionVariables.set('token', jsonData.token);",
+									"        console.log('New access token saved');",
+									"    }",
+									"}",
+									"",
+									"pm.test('Status code is 200', function() {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test('Response has new token', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('token');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "refresh"]
+						},
+						"description": "Refresh the access token using the refresh token stored in HTTP-only cookie.\n\n**Note:** The refresh token is automatically sent via cookie from a previous login. This endpoint returns a new access token."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+						},
+						{
+							"name": "Expired/Invalid Refresh Token",
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"error\": \"Invalid or expired refresh token\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function() {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test('Logout successful message', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});",
+									"",
+									"// Clear token from collection variables",
+									"pm.collectionVariables.set('token', '');",
+									"console.log('Token cleared from collection variables');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "logout"]
+						},
+						"description": "Logout the user and clear the refresh token cookie.\n\n**Note:** This endpoint clears the HTTP-only refresh token cookie on the server side."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"message\": \"Logged out successfully\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Tasks",
+			"description": "Task management endpoints (requires authentication)",
+			"item": [
+				{
+					"name": "Get All Tasks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function() {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test('Response is an array', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks"]
+						},
+						"description": "Get all tasks for the authenticated user.\n\n**Authentication:** Bearer token required"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/tasks",
+									"host": ["{{baseUrl}}"],
+									"path": ["tasks"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "[\n    {\n        \"_id\": \"6570abc123def456\",\n        \"id\": \"6570abc123def456\",\n        \"title\": \"Sample Task\",\n        \"description\": \"This is a sample task\",\n        \"status\": \"Pending\",\n        \"priority\": \"Medium\",\n        \"dueDate\": \"2025-12-25T00:00:00.000Z\",\n        \"userId\": \"user123\",\n        \"createdAt\": \"2025-12-11T00:00:00.000Z\",\n        \"updatedAt\": \"2025-12-11T00:00:00.000Z\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Task by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function() {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test('Response has task properties', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('title');",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "TASK_ID_HERE",
+									"description": "MongoDB ObjectId of the task"
+								}
+							]
+						},
+						"description": "Get a single task by its ID.\n\n**Authentication:** Bearer token required\n\n**Parameters:**\n- id: MongoDB ObjectId of the task"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/tasks/6570abc123def456",
+									"host": ["{{baseUrl}}"],
+									"path": ["tasks", "6570abc123def456"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"_id\": \"6570abc123def456\",\n    \"id\": \"6570abc123def456\",\n    \"title\": \"Sample Task\",\n    \"description\": \"This is a sample task\",\n    \"status\": \"Pending\",\n    \"priority\": \"Medium\",\n    \"dueDate\": \"2025-12-25T00:00:00.000Z\",\n    \"userId\": \"user123\",\n    \"createdAt\": \"2025-12-11T00:00:00.000Z\",\n    \"updatedAt\": \"2025-12-11T00:00:00.000Z\"\n}"
+						},
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/tasks/invalid_id",
+									"host": ["{{baseUrl}}"],
+									"path": ["tasks", "invalid_id"]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"error\": \"Task not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData._id || jsonData.id) {",
+									"        pm.collectionVariables.set('lastTaskId', jsonData._id || jsonData.id);",
+									"        console.log('Task ID saved:', jsonData._id || jsonData.id);",
+									"    }",
+									"}",
+									"",
+									"pm.test('Status code is 201', function() {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});",
+									"",
+									"pm.test('Response has task properties', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('title');",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"New Task from Postman\",\n    \"description\": \"This is a test task created via Postman\",\n    \"status\": \"Pending\",\n    \"priority\": \"Medium\",\n    \"dueDate\": \"2025-12-25T00:00:00.000Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks"]
+						},
+						"description": "Create a new task.\n\n**Authentication:** Bearer token required\n\n**Validation Rules:**\n- title: Required, max 150 characters\n- description: Optional, max 1000 characters\n- priority: Optional, must be 'Low', 'Medium', or 'High' (default: Medium)\n- status: Optional, must be 'Pending' or 'Completed' (default: Pending)\n- dueDate: Optional, must be valid ISO8601 date"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"New Task from Postman\",\n    \"description\": \"This is a test task created via Postman\",\n    \"status\": \"Pending\",\n    \"priority\": \"Medium\",\n    \"dueDate\": \"2025-12-25T00:00:00.000Z\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tasks",
+									"host": ["{{baseUrl}}"],
+									"path": ["tasks"]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"_id\": \"6570abc123def456\",\n    \"id\": \"6570abc123def456\",\n    \"title\": \"New Task from Postman\",\n    \"description\": \"This is a test task created via Postman\",\n    \"status\": \"Pending\",\n    \"priority\": \"Medium\",\n    \"dueDate\": \"2025-12-25T00:00:00.000Z\",\n    \"userId\": \"user123\",\n    \"createdAt\": \"2025-12-11T00:00:00.000Z\",\n    \"updatedAt\": \"2025-12-11T00:00:00.000Z\"\n}"
+						},
+						{
+							"name": "Validation Error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"\",\n    \"description\": \"Missing title\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tasks",
+									"host": ["{{baseUrl}}"],
+									"path": ["tasks"]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"error\": \"Validation failed\",\n    \"details\": [\n        {\n            \"type\": \"field\",\n            \"value\": \"\",\n            \"msg\": \"Title is required\",\n            \"path\": \"title\",\n            \"location\": \"body\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Task (Minimal)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function() {",
+									"    pm.expect(pm.response.code).to.equal(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Minimal Task\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks"]
+						},
+						"description": "Create a task with only the required field (title).\n\nAll other fields will use defaults:\n- status: 'Pending'\n- priority: 'Medium'"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function() {",
+									"    pm.expect(pm.response.code).to.equal(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Task Title\",\n    \"description\": \"Updated description\",\n    \"status\": \"Completed\",\n    \"priority\": \"High\",\n    \"dueDate\": \"2025-12-31T00:00:00.000Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{lastTaskId}}",
+									"description": "MongoDB ObjectId of the task to update"
+								}
+							]
+						},
+						"description": "Update an existing task.\n\n**Authentication:** Bearer token required\n\n**Parameters:**\n- id: MongoDB ObjectId of the task\n\n**Validation Rules:**\n- title: Required, max 150 characters\n- description: Optional, max 1000 characters\n- priority: Optional, must be 'Low', 'Medium', or 'High'\n- status: Optional, must be 'Pending' or 'Completed'\n- dueDate: Optional, must be valid ISO8601 date\n\n**Note:** Returns 204 No Content on success"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Updated Task Title\",\n    \"description\": \"Updated description\",\n    \"status\": \"Completed\",\n    \"priority\": \"High\",\n    \"dueDate\": \"2025-12-31T00:00:00.000Z\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/tasks/6570abc123def456",
+									"host": ["{{baseUrl}}"],
+									"path": ["tasks", "6570abc123def456"]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "text",
+							"body": ""
+						},
+						{
+							"name": "Task Not Found",
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"error\": \"Task with id 'invalid_id' not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Task Status Only",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 204 No Content', function() {",
+									"    pm.expect(pm.response.code).to.equal(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Keep existing title\",\n    \"status\": \"Completed\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{lastTaskId}}",
+									"description": "MongoDB ObjectId of the task"
+								}
+							]
+						},
+						"description": "Mark a task as completed by updating only the status field.\n\n**Note:** Title is required in the validation rules."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 or 204', function() {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/:id",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{lastTaskId}}",
+									"description": "MongoDB ObjectId of the task to delete"
+								}
+							]
+						},
+						"description": "Delete a task by its ID.\n\n**Authentication:** Bearer token required\n\n**Parameters:**\n- id: MongoDB ObjectId of the task"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/tasks/6570abc123def456",
+									"host": ["{{baseUrl}}"],
+									"path": ["tasks", "6570abc123def456"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n    \"message\": \"Task deleted successfully\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Error Scenarios",
+			"description": "Common error scenarios for testing",
+			"item": [
+				{
+					"name": "No Token - Get Tasks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 401', function() {",
+									"    pm.expect(pm.response.code).to.equal(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks"]
+						},
+						"description": "Test unauthorized access without token"
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Token - Get Tasks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 401', function() {",
+									"    pm.expect(pm.response.code).to.equal(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer invalid_token_here"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks"]
+						},
+						"description": "Test with invalid/expired token"
+					},
+					"response": []
+				},
+				{
+					"name": "Validation Error - Empty Title",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function() {",
+									"    pm.expect(pm.response.code).to.equal(400);",
+									"});",
+									"",
+									"pm.test('Has validation error details', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData).to.have.property('details');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"\",\n    \"description\": \"Task without title\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks"]
+						},
+						"description": "Test validation error with empty title"
+					},
+					"response": []
+				},
+				{
+					"name": "Validation Error - Invalid Priority",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function() {",
+									"    pm.expect(pm.response.code).to.equal(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Test Task\",\n    \"priority\": \"InvalidPriority\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": ["{{baseUrl}}"],
+							"path": ["tasks"]
+						},
+						"description": "Test validation error with invalid priority value"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
